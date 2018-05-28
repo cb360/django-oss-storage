@@ -244,9 +244,6 @@ class OssMediaStorage(OssStorage):
             location=getattr(settings, 'OSS_MEDIA_LOCATION', fallback_location),
             base_url=settings.MEDIA_URL)
 
-    def save(self, name, content, max_length=None):
-        return super(OssMediaStorage, self)._save(name, content)
-
 
 class OssStaticStorage(OssStorage):
     def __init__(self):
@@ -258,8 +255,6 @@ class OssStaticStorage(OssStorage):
             base_url=settings.STATIC_URL
         )
 
-    def save(self, name, content, max_length=None):
-        return super(OssStaticStorage, self)._save(name, content)
 
 class OssFile(File):
     """
