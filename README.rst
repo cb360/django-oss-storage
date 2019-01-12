@@ -61,6 +61,10 @@ Use the following settings to configure AliCloud OSS file storage.
     # Refer https://www.alibabacloud.com/help/zh/doc-detail/31837.htm for OSS Region & Endpoint
     OSS_ENDPOINT = <Your access endpoint>
 
+    # Custom domain name(自定义域名)
+    # e.g: CUSTOM_URL = 'img.myname.com'
+    CUSTOM_URL = <Your access endpoint>
+
     # The expire time to construct signed url for private acl bucket.
     # Can be set by OSS_EXPIRE_TIME as environment variable or as Django
     # settings. The default value is 30 days.

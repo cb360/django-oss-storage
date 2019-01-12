@@ -43,6 +43,7 @@ def _normalize_endpoint(endpoint):
     else:
         return endpoint
 
+
 class OssError(Exception):
     def __init__(self, value):
         self.value = value
@@ -50,22 +51,26 @@ class OssError(Exception):
     def __str__(self):
         return repr(self.value)
 
+
 @deconstructible
 class OssStorage(Storage):
     """
     Aliyun OSS Storage
     """
 
-    def __init__(self, access_key_id=None, access_key_secret=None, end_point=None, bucket_name=None, expire_time=None, location='', base_url=''):
+    def __init__(self, access_key_id=None, access_key_secret=None, end_point=None, bucket_name=None, expire_time=None,
+                 cname='', location='', base_url=''):
         self.access_key_id = access_key_id if access_key_id else _get_config('OSS_ACCESS_KEY_ID')
         self.access_key_secret = access_key_secret if access_key_secret else _get_config('OSS_ACCESS_KEY_SECRET')
         self.end_point = _normalize_endpoint(end_point if end_point else _get_config('OSS_ENDPOINT'))
         self.bucket_name = bucket_name if bucket_name else _get_config('OSS_BUCKET_NAME')
         self.expire_time = expire_time if expire_time else int(_get_config('OSS_EXPIRE_TIME', default=60*60*24*30))
+        self.cname = _get_config('CUSTOM_URL')
 
         self.auth = Auth(self.access_key_id, self.access_key_secret)
         self.service = Service(self.auth, self.end_point)
-        self.bucket = Bucket(self.auth, self.end_point, self.bucket_name)
+        # self.bucket = Bucket(self.auth, self.end_point, self.bucket_name)
+        self.bucket = Bucket(self.auth, self.cname, self.bucket_name, is_cname=True)
         self.location = location
         self.base_url = base_url
 
@@ -221,7 +226,11 @@ class OssStorage(Storage):
             return urljoin(self.base_url, key)
         else:
             scheme, endpoint = self.end_point.split('//')
-            return urljoin(scheme + '//' + self.bucket_name + '.' + endpoint, key)
+            cname = self.cname
+            if cname:
+                return urljoin(scheme + '//' + cname, key)
+            else:
+                return urljoin(scheme + '//' + self.bucket_name + '.' + endpoint, key)
 
     def delete(self, name):
         name = self._get_key_name(name)
@@ -234,6 +243,7 @@ class OssStorage(Storage):
             name += '/'
         logger().debug("delete name: %s", name)
         result = self.bucket.delete_object(name)
+
 
 class OssMediaStorage(OssStorage):
     def __init__(self):
